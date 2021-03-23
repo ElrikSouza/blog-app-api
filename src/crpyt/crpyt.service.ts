@@ -4,7 +4,11 @@ import { envVars } from 'src/env';
 
 @Injectable()
 export class CrpytService {
-  constructor(private rounds = envVars.BCRYPT_ROUNDS) {}
+  private rounds: number;
+
+  constructor() {
+    this.rounds = envVars.BCRYPT_ROUNDS;
+  }
 
   public async hashAsync(data: unknown) {
     return hash(data, this.rounds);
