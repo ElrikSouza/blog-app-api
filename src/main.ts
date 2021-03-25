@@ -10,11 +10,17 @@ import {
 } from '@nestjs/platform-fastify';
 import { types } from 'pg';
 import { ValidationPipe } from '@nestjs/common';
+import { readFileSync } from 'fs';
 
 async function bootstrap() {
+  const httpsOptions = {
+    key: readFileSync('./secrets/server-key.pem'),
+    cert: readFileSync('./secrets/server.pem'),
+  };
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({ https: httpsOptions }),
   );
 
   // Postgres Driver: Use integers instead of strings
