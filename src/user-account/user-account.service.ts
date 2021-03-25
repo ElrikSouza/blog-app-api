@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserAccount } from './user-account.entity';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UserAccountService {
@@ -33,6 +34,6 @@ export class UserAccountService {
   Since the id field will be generated, it is not required.
   **/
   public async addUserAccount(userAccount: Omit<UserAccount, 'id'>) {
-    this.userAccountRepo.create(userAccount);
+    await this.userAccountRepo.insert({ ...userAccount, id: uuid() });
   }
 }
