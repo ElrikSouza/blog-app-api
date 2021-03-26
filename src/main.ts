@@ -21,6 +21,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ https: httpsOptions }),
+    { cors: { origin: envVars.CORS_ORIGIN, credentials: true } },
   );
 
   // Postgres Driver: Use integers instead of strings
