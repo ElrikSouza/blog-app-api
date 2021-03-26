@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import helmet from 'fastify-helmet';
 import compress from 'fastify-compress';
 import cookie from 'fastify-cookie';
-import { envVars } from './env';
+import { envVars, validateEnvVars } from './env';
 import {
   NestFastifyApplication,
   FastifyAdapter,
@@ -13,6 +13,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { readFileSync } from 'fs';
 
 async function bootstrap() {
+  validateEnvVars(envVars);
+
   const httpsOptions = {
     key: readFileSync('./secrets/server-key.pem'),
     cert: readFileSync('./secrets/server.pem'),
