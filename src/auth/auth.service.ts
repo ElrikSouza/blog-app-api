@@ -33,7 +33,7 @@ export class AuthService {
     return userAccount;
   }
 
-  public async issueToken(id: string) {
+  private async issueToken(id: string) {
     return this.jwtService.signAsync({ userAccountId: id });
   }
 
