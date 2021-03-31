@@ -35,7 +35,7 @@ async function bootstrap() {
   app.register(cookie, { secret: envVars.COOKIE_SECRET });
   app.register(compress, { encodings: ['gzip', 'deflate'] });
 
-  await app.listen(envVars.PORT);
+  await app.listen(envVars.PORT, envVars.HOST);
 }
 
 bootstrap();

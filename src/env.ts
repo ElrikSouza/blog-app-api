@@ -4,6 +4,7 @@ config();
 
 export interface Env {
   PORT: number;
+  HOST?: string;
   JWT_SECRET: string;
   COOKIE_SECRET: string;
   CORS_ORIGIN: string;
@@ -22,6 +23,7 @@ const {
   CORS_ORIGIN,
   DATABASE_STRING,
   REDIS_STRING,
+  HOST,
 } = process.env;
 
 export const validateEnvVars = (envVars: Env) => {
@@ -61,4 +63,5 @@ export const envVars: Env = {
   CORS_ORIGIN,
   DATABASE_STRING,
   REDIS_STRING,
+  HOST,
 };
