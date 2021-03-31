@@ -3,7 +3,7 @@ import { AuthDTO } from './auth.dto';
 import { AuthService } from './auth.service';
 import { FastifyReply } from 'fastify';
 import { CookieSerializeOptions } from 'fastify-cookie';
-import { envVars } from 'src/env';
+import { envVars } from 'env';
 
 const cookieOptions: CookieSerializeOptions = {
   maxAge: 172800,

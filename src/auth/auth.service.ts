@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CrpytService } from 'src/crpyt/crpyt.service';
-import { UserAccountService } from 'src/user-account/user-account.service';
+import { CrpytService } from 'crpyt/crpyt.service';
+import { UserAccountService } from 'user-account/user-account.service';
 import { AuthDTO } from './auth.dto';
 
 @Injectable()

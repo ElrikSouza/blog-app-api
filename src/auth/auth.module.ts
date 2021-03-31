@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CrpytModule } from 'src/crpyt/crpyt.module';
-import { UserAccountModule } from 'src/user-account/user-account.module';
+import { CrpytModule } from 'crpyt/crpyt.module';
+import { UserAccountModule } from 'user-account/user-account.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { envVars } from 'src/env';
+import { envVars } from 'env';
 
 @Module({
   providers: [AuthService],

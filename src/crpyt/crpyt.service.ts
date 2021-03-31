@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
-import { envVars } from 'src/env';
+import { envVars } from 'env';
 
 @Injectable()
 export class CrpytService {
