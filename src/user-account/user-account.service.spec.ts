@@ -2,27 +2,11 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserAccount } from './user-account.entity';
+import { mockUserAccountRepo, mockUserAccounts } from './user-account.mock';
 import { UserAccountService } from './user-account.service';
 
 describe('UserAccountService', () => {
   let service: UserAccountService;
-  const accounts = [
-    { email: 'email1@example.com', password: 'A password' },
-    { email: 'email2@example.com', password: 'A password' },
-  ];
-  const mockRepository = {
-    async count({ email }: { email: string }) {
-      const count = accounts.filter((account) => account.email === email)
-        .length;
-
-      return count;
-    },
-    async findOne({ email }: { email: string }) {
-      const result = accounts.find((account) => account.email === email);
-
-      return result;
-    },
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,7 +14,7 @@ describe('UserAccountService', () => {
         UserAccountService,
         {
           provide: getRepositoryToken(UserAccount),
-          useValue: mockRepository,
+          useValue: mockUserAccountRepo,
         },
       ],
     }).compile();
@@ -58,7 +42,7 @@ describe('UserAccountService', () => {
     it('should return the requested account if it exists', async () => {
       const result = await service.getUserAccountOrFail('email1@example.com');
 
-      expect(result).toEqual(accounts[0]);
+      expect(result).toEqual(mockUserAccounts[0]);
     });
 
     it('should throw an exception if the requested account does not exist', () => {
