@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CrpytModule } from './crpyt/crpyt.module';
 import { AuthModule } from './auth/auth.module';
 import { envVars } from './env';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { envVars } from './env';
     }),
     CrpytModule,
     AuthModule,
+    ProfileModule,
   ],
   controllers: [],
   providers: [AppService],
