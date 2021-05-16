@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserAccount } from './user-account.entity';
@@ -48,7 +48,7 @@ describe('UserAccountService', () => {
     it('should throw an exception if the requested account does not exist', () => {
       const result = service.getUserAccountOrFail('email3@example.com');
 
-      expect(result).rejects.toBeInstanceOf(NotFoundException);
+      expect(result).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });
 });

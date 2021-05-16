@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserAccount } from './user-account.entity';
@@ -17,11 +17,18 @@ export class UserAccountService {
     return count >= 1;
   }
 
+  /**
+   * Keep in mind, this method throws an UnauthorizedException instead of a NotFoundException
+   *
+   * @param {string} email
+   * @returns {UserAccount} userAccount
+   */
   async getUserAccountOrFail(email: string) {
     const userAccount = await this.userAccountRepo.findOne({ email });
 
     if (!userAccount) {
-      throw new NotFoundException('User account not found');
+      // The app should not mention that the account does not exist
+      throw new UnauthorizedException('Invalid Login');
     }
 
     return userAccount;
