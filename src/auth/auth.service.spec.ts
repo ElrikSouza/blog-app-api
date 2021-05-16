@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -56,7 +52,7 @@ describe('AuthService', () => {
         password: 'password11111',
       });
 
-      expect(rejectedPromise).rejects.toThrowError(NotFoundException);
+      expect(rejectedPromise).rejects.toThrowError(UnauthorizedException);
     });
 
     it('should succeed if the credentials are correct', async () => {
@@ -74,7 +70,7 @@ describe('AuthService', () => {
     it('should fail if the provided email is already in use', () => {
       const result = service.signUp(mockUserAccounts[0]);
 
-      expect(result).rejects.toThrowError(ConflictException);
+      expect(result).rejects.toThrowError(BadRequestException);
     });
 
     it('should succeed if the email is available', () => {

@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -27,7 +27,8 @@ export class AuthService {
     );
 
     if (!doPasswordsMatch) {
-      throw new UnauthorizedException('Wrong password.');
+      // Do NOT metion that the password is wrong!
+      throw new UnauthorizedException('Invalid Login');
     }
 
     return userAccount;
@@ -48,7 +49,7 @@ export class AuthService {
     );
 
     if (isEmailAlreadyInUse) {
-      throw new ConflictException('Email already in use.');
+      throw new BadRequestException('Email is invalid or already taken.');
     }
 
     const hashedPassword = await this.crypt.hashAsync(userInfo.password);

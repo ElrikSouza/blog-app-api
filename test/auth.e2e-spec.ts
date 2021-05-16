@@ -90,26 +90,26 @@ describe('AuthController (e2e)', () => {
       expect(result.statusCode).toBe(401);
     });
 
-    it('should return 404 if the requested account does not exist', async () => {
+    it('should return 401 if the requested account does not exist', async () => {
       const result = await app.inject({
         ...loginPost,
         payload: { email: 'notfound@example.com', password: '12345678' },
       });
 
-      expect(result.statusCode).toBe(404);
+      expect(result.statusCode).toBe(401);
     });
   });
 
   describe('/auth/sign-up (POST)', () => {
     const signUpPost: InjectOptions = { method: 'POST', url: '/auth/sign-up' };
 
-    it('should return 409 if the provided email is already taken', async () => {
+    it('should return 400 if the provided email is already taken', async () => {
       const result = await app.inject({
         ...signUpPost,
         payload: { email: 'example@example.com', password: '12345678' },
       });
 
-      expect(result.statusCode).toBe(409);
+      expect(result.statusCode).toBe(400);
     });
 
     it('should return 400 if the provided data is invalid', async () => {
