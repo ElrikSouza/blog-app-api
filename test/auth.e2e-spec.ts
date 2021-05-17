@@ -6,10 +6,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { UserAccount } from 'user-account/user-account.entity';
 import type { InjectOptions } from './inject-options.type';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { createModuleFixture, createTestApp } from './module-fixture';
 
 describe('AuthController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -25,33 +23,14 @@ describe('AuthController (e2e)', () => {
   ];
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AuthModule,
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          url: process.env.DATABASE_STRING_TEST,
-          autoLoadEntities: true,
-        }),
-      ],
-    }).compile();
+    const moduleFixture = await createModuleFixture([AuthModule]);
 
     entityManager = moduleFixture.get<EntityManager>(EntityManager);
 
     await entityManager.query('delete from user_account;');
     await entityManager.insert(UserAccount, userAccounts);
 
-    app = moduleFixture.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter(),
-    );
-
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
-    );
-    app.register(cookies, { secret: 'test' });
-
-    await app.init();
-    await app.getHttpAdapter().getInstance().ready();
+    app = await createTestApp(moduleFixture);
   });
 
   afterAll(async () => {
