@@ -6,14 +6,16 @@ import { CrpytModule } from 'crpyt/crpyt.module';
 import { UserAccount } from 'user-account/user-account.entity';
 import {
   mockUserAccountRepo,
-  mockUserAccounts,
+  createMockUserAccounts,
 } from 'user-account/user-account.mock';
 import { UserAccountService } from 'user-account/user-account.service';
 import { AuthService } from './auth.service';
+import * as faker from 'faker';
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwt: JwtService;
+  const mockUserAccounts = createMockUserAccounts(3);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,7 +24,7 @@ describe('AuthService', () => {
         UserAccountService,
         {
           provide: getRepositoryToken(UserAccount),
-          useValue: mockUserAccountRepo,
+          useValue: mockUserAccountRepo(mockUserAccounts),
         },
       ],
       imports: [JwtModule.register({ secret: 'test' }), CrpytModule],
@@ -40,7 +42,7 @@ describe('AuthService', () => {
     it('should fail if the password is wrong', () => {
       const rejectedPromise = service.logIn({
         email: mockUserAccounts[0].email,
-        password: '123456789',
+        password: faker.datatype.string(12),
       });
 
       expect(rejectedPromise).rejects.toThrowError(UnauthorizedException);
@@ -48,8 +50,8 @@ describe('AuthService', () => {
 
     it('should fail if the requested account does not exist', () => {
       const rejectedPromise = service.logIn({
-        email: 'notfound@example.com',
-        password: 'password11111',
+        email: faker.internet.email(),
+        password: faker.datatype.string(12),
       });
 
       expect(rejectedPromise).rejects.toThrowError(UnauthorizedException);
@@ -75,7 +77,10 @@ describe('AuthService', () => {
 
     it('should succeed if the email is available', () => {
       expect(async () =>
-        service.signUp({ email: 'email@email.com', password: '123434234234' }),
+        service.signUp({
+          email: faker.internet.email(),
+          password: faker.datatype.string(12),
+        }),
       ).not.toThrow();
     });
   });
