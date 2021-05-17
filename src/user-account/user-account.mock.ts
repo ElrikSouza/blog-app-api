@@ -1,20 +1,8 @@
-import { v4 as uuid } from 'uuid';
-import { hashSync } from 'bcrypt';
+import { UserAccount } from './user-account.entity';
 import * as faker from 'faker';
 
-export const mockUserAccounts = [
-  {
-    id: uuid(),
-    email: 'email1@example.com',
-    password: hashSync('12345678', 1),
-  },
-  {
-    id: uuid(),
-    email: 'email2@example.com',
-    password: hashSync('12345678', 1),
-  },
-];
-const hashed1to8 = hashSync('12345678', 1);
+const hashed1to8 =
+  '$2b$04$HbeWFucFsOc74oVAOivMle660bw3j1yo.JfXeE8LV3a.4atz1iERq';
 
 const createOneMockUserAccount = (password = hashed1to8) => ({
   id: faker.datatype.uuid(),
@@ -36,7 +24,7 @@ export const createMockUserAccounts = (amount: number) => {
   return mockUsers;
 };
 
-export const mockUserAccountRepo = {
+export const mockUserAccountRepo = (mockUserAccounts: Array<UserAccount>) => ({
   async count({ email }: { email: string }) {
     const count = mockUserAccounts.filter((account) => account.email === email)
       .length;
@@ -51,4 +39,4 @@ export const mockUserAccountRepo = {
   async insert() {
     return;
   },
-};
+});
