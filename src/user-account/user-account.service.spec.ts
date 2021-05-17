@@ -2,11 +2,16 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserAccount } from './user-account.entity';
-import { mockUserAccountRepo, mockUserAccounts } from './user-account.mock';
+import {
+  mockUserAccountRepo,
+  createMockUserAccounts,
+} from './user-account.mock';
 import { UserAccountService } from './user-account.service';
+import * as faker from 'faker';
 
 describe('UserAccountService', () => {
   let service: UserAccountService;
+  const mockUserAccounts = createMockUserAccounts(4);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,7 +19,7 @@ describe('UserAccountService', () => {
         UserAccountService,
         {
           provide: getRepositoryToken(UserAccount),
-          useValue: mockUserAccountRepo,
+          useValue: mockUserAccountRepo(mockUserAccounts),
         },
       ],
     }).compile();
@@ -28,25 +33,29 @@ describe('UserAccountService', () => {
 
   describe('isEmailAlreadyTaken', () => {
     it('should return true if the email is already in use', async () => {
-      const result = await service.isEmailAlreadyTaken('email1@example.com');
+      const { email } = mockUserAccounts[0];
+      const result = await service.isEmailAlreadyTaken(email);
       expect(result).toBe(true);
     });
 
     it('should return false if the email is not in use', async () => {
-      const result = await service.isEmailAlreadyTaken('email3@example.com');
+      const email = faker.internet.email();
+      const result = await service.isEmailAlreadyTaken(email);
       expect(result).toBe(false);
     });
   });
 
   describe('getUserAccountOrFail', () => {
     it('should return the requested account if it exists', async () => {
-      const result = await service.getUserAccountOrFail('email1@example.com');
+      const { email } = mockUserAccounts[0];
+      const result = await service.getUserAccountOrFail(email);
 
       expect(result).toEqual(mockUserAccounts[0]);
     });
 
     it('should throw an exception if the requested account does not exist', () => {
-      const result = service.getUserAccountOrFail('email3@example.com');
+      const email = faker.internet.email();
+      const result = service.getUserAccountOrFail(email);
 
       expect(result).rejects.toBeInstanceOf(UnauthorizedException);
     });
