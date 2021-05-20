@@ -12,7 +12,7 @@ export class UserProfile {
   display_name: string;
 
   @Column()
-  username: string;
+  profile_name: string;
 
   @Column()
   bio: string;
