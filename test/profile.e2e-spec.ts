@@ -111,13 +111,55 @@ describe('ProfileController (e2e)', () => {
   });
 
   describe('/profiles (POST)', () => {
-    it.todo('should return 409 if the user already has two profiles');
+    const createProfileRequest: InjectOptions = {
+      method: 'POST',
+      url: '/profiles',
+    };
 
-    it.todo('should succeed if the use has less than two profiles');
+    const profile = {
+      profile_name: faker.internet.userName(),
+      display_name: faker.name.firstName(),
+      bio: 'Valid biography',
+    };
 
-    it.todo('should return 409 if the requested username is already in use');
+    it('should return 409 if the user already has two profiles', async () => {
+      const { statusCode } = await app.inject({
+        ...createProfileRequest,
+        payload: profile,
+        headers: { Authorization: tokens[0] },
+      });
 
-    it.todo('should return 401 if the user is not authenticated');
+      expect(statusCode).toBe(409);
+    });
+
+    it('should succeed if the use has less than two profiles', async () => {
+      const { statusCode } = await app.inject({
+        ...createProfileRequest,
+        payload: profile,
+        headers: { Authorization: tokens[2] },
+      });
+
+      expect(statusCode).toBe(201);
+    });
+
+    it('should return 409 if the requested profile name is already in use', async () => {
+      const { statusCode } = await app.inject({
+        ...createProfileRequest,
+        payload: { ...profile, profile_name: profiles[0].profile_name },
+        headers: { Authorization: tokens[2] },
+      });
+
+      expect(statusCode).toBe(409);
+    });
+
+    it('should return 401 if the user is not authenticated', async () => {
+      const { statusCode } = await app.inject({
+        ...createProfileRequest,
+        payload: { ...profile, profile_name: profiles[0].profile_name },
+      });
+
+      expect(statusCode).toBe(401);
+    });
   });
 
   describe('/profiles/:profile_name (GET)', () => {
@@ -127,9 +169,7 @@ describe('ProfileController (e2e)', () => {
     });
 
     it('should return 404 if the requested profile does not exist', async () => {
-      const result = await app.inject(
-        getProfileRequest(faker.datatype.string(20)),
-      );
+      const result = await app.inject(getProfileRequest('a'.repeat(23)));
 
       expect(result.statusCode).toBe(404);
     });

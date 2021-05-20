@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { UserProfile } from './user-profile.entity';
 import { v4 as uuid } from 'uuid';
 import { EditProfileDTO } from './edit-profile.dto';
+import { CreateProfileDTO } from './create-profile.dto';
 
 @Injectable()
 export class ProfileService {
@@ -27,10 +28,7 @@ export class ProfileService {
     return this.userProfileRepository.count({ account_id });
   }
 
-  public async createProfile(
-    profile: Omit<UserProfile, 'id' | 'account_id'>,
-    accountId: string,
-  ) {
+  public async createProfile(profile: CreateProfileDTO, accountId: string) {
     const profileCount = await this.countProfilesAssociatedToaAccount(
       accountId,
     );
@@ -51,7 +49,7 @@ export class ProfileService {
       );
     }
 
-    this.userProfileRepository.insert({
+    await this.userProfileRepository.insert({
       ...profile,
       id: uuid(),
       account_id: accountId,
