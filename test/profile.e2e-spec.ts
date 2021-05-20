@@ -8,42 +8,22 @@ import { createMockUserAccounts } from 'user-account/user-account.mock';
 import { createModuleFixture, createTestApp } from './module-fixture';
 import { ProfileModule } from 'profile/profile.module';
 import * as faker from 'faker';
+import { createOneMockProfile } from 'profile/profile.mock';
+import { AuthService } from '../dist/auth/auth.service';
 
 describe('ProfileController (e2e)', () => {
   let app: NestFastifyApplication;
   let entityManager: EntityManager;
+  let authService: AuthService;
+  let tokens: string[];
 
   const userAccounts = createMockUserAccounts(4);
 
   const profiles = [
-    {
-      id: 'e7ce7423-e750-4b6e-bf65-777adaed92fd',
-      account_id: userAccounts[0].id,
-      display_name: 'Example Joe',
-      profile_name: 'ejoe',
-      bio: 'Example',
-    },
-    {
-      id: 'e73e7424-e750-4b6e-bf65-777adaed12fd',
-      account_id: userAccounts[0].id,
-      display_name: 'Example Joe II',
-      profile_name: 'ejoe2',
-      bio: 'ExampleII',
-    },
-    {
-      id: 'e23e7424-e732-4b6e-bf32-777adaed12fd',
-      account_id: userAccounts[1].id,
-      display_name: 'Example Joe III',
-      profile_name: 'ejoe3',
-      bio: 'ExampleIII',
-    },
-    {
-      id: 'e23e3333-e732-4b6e-bf32-777adaed12fd',
-      account_id: userAccounts[1].id,
-      display_name: 'Example Joe Del',
-      profile_name: 'ejoe3333',
-      bio: 'ExampleDelete',
-    },
+    createOneMockProfile(userAccounts[0].id),
+    createOneMockProfile(userAccounts[0].id),
+    createOneMockProfile(userAccounts[1].id),
+    createOneMockProfile(userAccounts[2].id),
   ];
 
   beforeAll(async () => {
@@ -53,12 +33,24 @@ describe('ProfileController (e2e)', () => {
     ]);
 
     entityManager = moduleFixture.get<EntityManager>(EntityManager);
+    authService = moduleFixture.get<AuthService>(AuthService);
 
     await entityManager.query('delete from user_account;');
     await entityManager.insert(UserAccount, userAccounts);
 
     await entityManager.query('delete from user_profile;');
     await entityManager.insert(UserProfile, profiles);
+
+    tokens = await Promise.all(
+      [0, 1, 2].map(async (index) =>
+        authService.logIn({
+          email: userAccounts[index].email,
+          password: '12345678',
+        }),
+      ),
+    );
+
+    tokens = tokens.map((token) => `Bearer ${token}`);
 
     app = await createTestApp(moduleFixture);
   });
@@ -67,18 +59,55 @@ describe('ProfileController (e2e)', () => {
     await app.close();
   });
 
-  describe('/profiles/:id (DELETE)', () => {
-    it.todo(
-      'should delete the profile if the user is the owner of the profile',
-    );
+  describe('/profiles/:profile_name (DELETE)', () => {
+    const generateDeleteProfileRequest = (id: string): InjectOptions => ({
+      method: 'DELETE',
+      url: `/profiles/${id}`,
+    });
 
-    it.todo('should return 404 if the profile does not exist');
+    it('should delete the profile if the user is the owner of the profile', async () => {
+      const result = await app.inject({
+        ...generateDeleteProfileRequest(profiles[3].profile_name),
+        headers: { Authorization: tokens[2] },
+      });
 
-    it.todo('should return 400 if the id is invalid');
+      expect(result.statusCode).toBe(200);
+    });
 
-    it.todo('should return 403 if the user is not the owner of the profile');
+    it('should return 404 if the profile does not exist', async () => {
+      const { statusCode } = await app.inject({
+        ...generateDeleteProfileRequest('a'.repeat(23)),
+        headers: { Authorization: tokens[0] },
+      });
 
-    it.todo('should return 401 if the user is not authenticated');
+      expect(statusCode).toBe(404);
+    });
+
+    it('should return 400 if the id is invalid', async () => {
+      const { statusCode } = await app.inject({
+        ...generateDeleteProfileRequest('a'.repeat(36)),
+        headers: { Authorization: tokens[0] },
+      });
+
+      expect(statusCode).toBe(400);
+    });
+
+    it('should return 403 if the user is not the owner of the profile', async () => {
+      const { statusCode } = await app.inject({
+        ...generateDeleteProfileRequest(profiles[2].profile_name),
+        headers: { Authorization: tokens[0] },
+      });
+
+      expect(statusCode).toBe(403);
+    });
+
+    it('should return 401 if the user is not authenticated', async () => {
+      const { statusCode } = await app.inject({
+        ...generateDeleteProfileRequest(profiles[1].profile_name),
+      });
+
+      expect(statusCode).toBe(401);
+    });
   });
 
   describe('/profiles (POST)', () => {
@@ -91,9 +120,9 @@ describe('ProfileController (e2e)', () => {
     it.todo('should return 401 if the user is not authenticated');
   });
 
-  describe('/profiles/:id (GET)', () => {
-    const getProfileRequest = (id: string): InjectOptions => ({
-      url: `/profiles/${id}`,
+  describe('/profiles/:profile_name (GET)', () => {
+    const getProfileRequest = (profileName: string): InjectOptions => ({
+      url: `/profiles/${profileName}`,
       method: 'GET',
     });
 

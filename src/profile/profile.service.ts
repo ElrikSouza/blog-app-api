@@ -1,8 +1,8 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -90,19 +90,19 @@ export class ProfileService {
     const profile = await this.getProfileById(profile_id);
 
     if (profile.account_id !== account_id) {
-      throw new UnauthorizedException('You do not own this profile.');
+      throw new ForbiddenException('You do not own this profile.');
     }
 
     await this.userProfileRepository.update({ id: profile_id }, editProfileDto);
   }
 
-  public async deleteProfile(account_id: string, profile_id: string) {
-    const profile = await this.getProfileById(profile_id);
+  public async deleteProfile(account_id: string, profile_name: string) {
+    const profile = await this.getProfileByName(profile_name);
 
     if (profile.account_id !== account_id) {
-      throw new UnauthorizedException('You do not own this profile.');
+      throw new ForbiddenException('You do not own this profile.');
     }
 
-    await this.userProfileRepository.delete({ id: profile_id });
+    await this.userProfileRepository.delete({ profile_name });
   }
 }
